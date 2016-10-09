@@ -8,13 +8,6 @@ iOS Images Extractor is a Mac app to normalize , decode and extract images from 
 - `ipa`
 - `car(Assets.car)`
 
-##Build
-```
-git clone https://github.com/devcxm/iOS-Images-Extractor
-cd iOS-Images-Extractor
-git submodule update --init --recursive
-open iOSImagesExtractor.xcworkspace
-```
 ###[中文使用方法看这里](/README_zh-Hans.md)
 
 ##Screenshot
@@ -25,6 +18,9 @@ open iOSImagesExtractor.xcworkspace
 _**OS X 10.8 or later.**_
 
 ##Change Logs
+- ###v0.4.0 2016-10-09
+Revert CARExtractor to fix Xcode 8 compatible.
+
 - ###v0.3.1 2016-05-15
 Add app icons and update CARExtractor.
 
