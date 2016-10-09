@@ -168,8 +168,13 @@
 
     }
     else if (sender.tag == 400) {// About
-        
-        [[NSApplication sharedApplication].delegate performSelector:NSSelectorFromString(@"showAboutWindow:") withObject:nil];
+        SEL aboutSelector = NSSelectorFromString(@"showAboutWindow:");
+        NSObject *delegateObject = [NSApplication sharedApplication].delegate;
+        if ([delegateObject respondsToSelector:aboutSelector]) {
+            IMP imp = [delegateObject methodForSelector:aboutSelector];
+            void (*func)(id, SEL) = (void *)imp;
+            func(delegateObject, aboutSelector);
+        }
     }
     else if (sender.tag == 200) {// Start
         
@@ -466,7 +471,9 @@
 - (NSData*)imageDataWithImage:(NSImage*)image bitmapImageFileType:(NSBitmapImageFileType)fileType
 {
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:[image TIFFRepresentation]];
-    return [rep representationUsingType:fileType properties:nil];
+    NSDictionary *imageProps = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:1.0] forKey:NSImageCompressionFactor];
+    
+    return [rep representationUsingType:fileType properties:imageProps];
 }
 
 /**
@@ -496,28 +503,10 @@
     
     NSArray *arguments = @[@"-i", path, @"-o", outputPath];
     [task setArguments:arguments];
-    
-    //Handle output
-    NSPipe *pipe = [[NSPipe alloc] init];
-    task.standardOutput = pipe;
-    
-    [pipe.fileHandleForReading waitForDataInBackgroundAndNotify];
-    [[NSNotificationCenter defaultCenter] addObserverForName:NSFileHandleDataAvailableNotification object:[pipe fileHandleForReading] queue:nil usingBlock:^(NSNotification *notification){
-//        NSData *output = [[pipe fileHandleForReading] availableData];
-//        NSString *outString = [[NSString alloc] initWithData:output encoding:NSUTF8StringEncoding];
-//        XMLog(@"ddddddddd%@", outString);
-//        if (outputPath.length > 0) {
-//            [self setStatusString:outString];
-//        }
-        
-        [[pipe fileHandleForReading] waitForDataInBackgroundAndNotify];
-    }];
-    
+
     //Run the task
     [task launch];
     [task waitUntilExit];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:nil name:NSFileHandleDataAvailableNotification object:[pipe fileHandleForReading]];
     
 }
 
